@@ -52,6 +52,15 @@ It knows which arguments not to forward to pip install:
   $ pip install python-dateutil==1.5 >/dev/null 2>&1
   $ pip-review --auto --not-required >/dev/null 2>&1
 
+Now, test blacklisting dateutils:
+
+  $ pip install python-dateutil==1.5 >/dev/null 2>&1
+  $ pip-review --blacklist 'dateutil$' >/dev/null 2>&1
+
+Check the whitelist, too:
+
+  $ pip-review --whitelist 'dateutil$' >/dev/null 2>&1
+
 Next, let's test for regressions with older versions of pip:
 
   $ pip install --force-reinstall --upgrade pip\<6.0 >/dev/null 2>&1
