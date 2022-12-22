@@ -18,17 +18,17 @@ Setup. Let's pretend we have some outdated package versions installed:
 
 Next, let's see what pip-review does:
 
-  $ pip-review 2>&1 | egrep -v '^DEPRECATION:'
+  $ pip-review 2>&1 | grep -Ev '^DEPRECATION:'
   python-dateutil==* is available (you have 1.5) (glob)
 
 Or in raw mode:
 
-  $ pip-review --raw 2>&1 | egrep -v '^DEPRECATION:'
+  $ pip-review --raw 2>&1 | grep -Ev '^DEPRECATION:'
   python-dateutil==* (glob)
 
 pip-review forwards arguments it doesn't recognize to pip:
 
-  $ pip-review --timeout 30 2>&1 | egrep -v '^DEPRECATION:'
+  $ pip-review --timeout 30 2>&1 | grep -Ev '^DEPRECATION:'
   python-dateutil==* is available (you have 1.5) (glob)
 
 It only fails if pip doesn't recognize it either:
@@ -39,7 +39,7 @@ It only fails if pip doesn't recognize it either:
 We can also install these updates automatically:
 
   $ pip-review --auto >/dev/null 2>&1
-  $ pip-review 2>&1 | egrep -v '^DEPRECATION:'
+  $ pip-review 2>&1 | grep -Ev '^DEPRECATION:'
   Everything up-to-date
 
 It knows which arguments not to forward to pip list:
@@ -57,7 +57,7 @@ Next, let's test for regressions with older versions of pip:
   $ pip install --force-reinstall --upgrade pip\<6.0 >/dev/null 2>&1
   $ if python -c 'import sys; sys.exit(0 if sys.version_info < (3, 6) else 1)'; then
   >   rm -rf pip_review.egg-info  # prevents spurious editable in pip freeze
-  >   pip-review | egrep '^pip=='
+  >   pip-review | grep -E '^pip=='
   > else
   >   echo Skipped
   > fi
