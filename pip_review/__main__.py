@@ -86,6 +86,14 @@ def parse_args():
     parser.add_argument(
         '--freeze-outdated-packages', action='store_true', default=False,
         help='Freeze all outdated packages to "requirements.txt" before upgrading them')
+    parser.add_argument(
+        '--whitelist', default='',
+        help='Only check packages matching this name pattern'
+    )
+    parser.add_argument(
+        '--blacklist', default='',
+        help='Skip packages matching this name pattern'
+    )
     return parser.parse_known_args()
 
 
@@ -228,6 +236,18 @@ def get_outdated_packages(forwarded):
         return packages
 
 
+def apply_whitelist_or_blacklist(packages, pattern, is_whitelist=True):
+    if pattern == '':
+        return packages
+    filtered = []
+    match = re.compile(pattern, re.IGNORECASE)
+    for pkg in packages:
+        found = match.search(pkg['name']) is not None
+        if is_whitelist == found:
+            filtered.append(pkg)
+    return filtered
+
+
 def main():
     args, forwarded = parse_args()
     list_args = filter_forwards(forwarded, INSTALL_ONLY)
@@ -238,6 +258,8 @@ def main():
         raise SystemExit('--raw and --interactive cannot be used together')
 
     outdated = get_outdated_packages(list_args)
+    outdated = apply_whitelist_or_blacklist(outdated, args.whitelist, is_whitelist=True)
+    outdated = apply_whitelist_or_blacklist(outdated, args.blacklist, is_whitelist=False)
     if not outdated and not args.raw:
         logger.info('Everything up-to-date')
     elif args.auto:
